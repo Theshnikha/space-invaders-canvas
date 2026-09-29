@@ -32,6 +32,7 @@ pipeline {
                     git --version
                     echo Java Version:
                     java -version
+                    exit /b 0
                 '''
             }
         }
@@ -41,7 +42,7 @@ pipeline {
                 bat '''
                     @echo off
                     echo ===================================================
-                    echo [CI] Checking / Installing Dependencies
+                    echo [CI] Checking and Installing Dependencies
                     echo ===================================================
                     if exist package-lock.json (
                         echo Running npm ci...
@@ -50,6 +51,8 @@ pipeline {
                         echo Running npm install...
                         call npm.cmd install
                     )
+                    if errorlevel 1 exit /b 1
+                    exit /b 0
                 '''
             }
         }
@@ -62,6 +65,8 @@ pipeline {
                     echo [CI] Executing Automated Unit Tests (32 tests)
                     echo ===================================================
                     call npm.cmd test
+                    if errorlevel 1 exit /b 1
+                    exit /b 0
                 '''
             }
         }
@@ -71,13 +76,14 @@ pipeline {
                 bat '''
                     @echo off
                     echo ===================================================
-                    echo [CI] Validating Source Files & Syntax
+                    echo [CI] Validating Source Files and Syntax
                     echo ===================================================
                     node --check js/game.js
                     if errorlevel 1 exit /b 1
                     node --check tests/game.test.js
                     if errorlevel 1 exit /b 1
                     echo All JavaScript source files verified successfully.
+                    exit /b 0
                 '''
             }
         }
@@ -100,12 +106,14 @@ pipeline {
                     echo Dockerfile and nginx.conf verified.
                     
                     where docker >nul 2>nul
-                    if %ERRORLEVEL% EQU 0 (
+                    if errorlevel 1 (
+                        echo [INFO] Docker CLI is not installed in this environment. Skipping container build.
+                    ) else (
                         echo Docker CLI found. Building container image...
                         docker build -t space-invaders-game:%BUILD_NUMBER% .
-                    ) else (
-                        echo [INFO] Docker CLI is not installed in this environment. Skipping container build.
+                        if errorlevel 1 exit /b 1
                     )
+                    exit /b 0
                 '''
             }
         }
