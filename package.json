@@ -1,0 +1,16 @@
+{
+  "name": "space-invaders-canvas",
+  "version": "1.0.0",
+  "description": "Space Invaders Canvas Game - Retro Arcade Game with automated tests",
+  "scripts": {
+    "test": "node --test tests/game.test.js"
+  },
+  "keywords": [
+    "space-invaders",
+    "html5-canvas",
+    "arcade-game",
+    "vanilla-javascript"
+  ],
+  "author": "",
+  "license": "MIT"
+}

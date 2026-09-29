@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Classic retro Space Invaders arcade game built with HTML5 Canvas and vanilla JavaScript.">
+  <title>Space Invaders Canvas Game</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="arcade-cabinet">
+    <!-- Retro Arcade Bezel / Header -->
+    <header class="arcade-header">
+      <div class="marquee-title">
+        <span class="neon-text glow-cyan">SPACE</span>
+        <span class="neon-text glow-magenta">INVADERS</span>
+      </div>
+      <div class="header-controls">
+        <button id="sound-toggle-btn" class="arcade-btn-small" aria-label="Toggle Sound" title="Toggle Sound (Press M)">
+          <span id="sound-icon">🔊</span> SOUND: <span id="sound-status">ON</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- Arcade Canvas Viewport with CRT Overlays -->
+    <main class="canvas-wrapper">
+      <!-- HUD Bar -->
+      <div id="game-hud" class="game-hud">
+        <div class="hud-item">
+          <span class="hud-label">SCORE</span>
+          <span id="score-display" class="hud-value">00000</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">HI-SCORE</span>
+          <span id="high-score-display" class="hud-value">00000</span>
+        </div>
+        <div class="hud-item">
+          <span class="hud-label">WAVE</span>
+          <span id="level-display" class="hud-value">01</span>
+        </div>
+        <div class="hud-item lives-container">
+          <span class="hud-label">LIVES</span>
+          <div id="lives-display" class="lives-icons" aria-label="Remaining Lives">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <!-- HTML5 Game Canvas -->
+      <canvas id="gameCanvas" width="800" height="600" aria-label="Space Invaders Game Screen"></canvas>
+
+      <!-- CRT Visual Overlays -->
+      <div class="crt-scanlines" aria-hidden="true"></div>
+      <div class="crt-glow" aria-hidden="true"></div>
+
+      <!-- Start Game Overlay -->
+      <div id="start-screen" class="overlay-screen active">
+        <div class="overlay-content">
+          <h1 class="game-title neon-flicker">SPACE INVADERS</h1>
+          
+          <div class="score-table">
+            <h2 class="table-heading">* SCORE ADVANCE TABLE *</h2>
+            <div class="table-row">
+              <span class="alien-preview mystery-saucer">🛸</span>
+              <span class="alien-desc">MYSTERY UFO</span>
+              <span class="alien-pts glow-red">? MYSTERY</span>
+            </div>
+            <div class="table-row">
+              <span class="alien-preview squid">👾</span>
+              <span class="alien-desc">COMMANDER</span>
+              <span class="alien-pts glow-magenta">30 PTS</span>
+            </div>
+            <div class="table-row">
+              <span class="alien-preview crab">👾</span>
+              <span class="alien-desc">CRAB INVADER</span>
+              <span class="alien-pts glow-cyan">20 PTS</span>
+            </div>
+            <div class="table-row">
+              <span class="alien-preview octopus">👾</span>
+              <span class="alien-desc">OCTOPUS TROOPER</span>
+              <span class="alien-pts glow-green">10 PTS</span>
+            </div>
+          </div>
+
+          <div class="instructions-box">
+            <p><kbd>←</kbd> <kbd>→</kbd> or <kbd>A</kbd> <kbd>D</kbd> : Move Spaceship</p>
+            <p><kbd>SPACEBAR</kbd> : Fire Laser Cannon</p>
+            <p><kbd>P</kbd> : Pause Game &nbsp;|&nbsp; <kbd>M</kbd> : Toggle Sound</p>
+          </div>
+
+          <button id="start-btn" class="arcade-btn arcade-btn-primary">
+            INSERT COIN &amp; PLAY
+          </button>
+          <p class="press-space-hint blink">PRESS SPACE TO START</p>
+        </div>
+      </div>
+
+      <!-- Pause Overlay -->
+      <div id="pause-screen" class="overlay-screen hidden">
+        <div class="overlay-content">
+          <h2 class="neon-text glow-yellow">GAME PAUSED</h2>
+          <p class="pause-instructions">Press <kbd>P</kbd> or click button below to resume mission</p>
+          <button id="resume-btn" class="arcade-btn arcade-btn-secondary">RESUME GAME</button>
+        </div>
+      </div>
+
+      <!-- Game Over Overlay -->
+      <div id="game-over-screen" class="overlay-screen hidden">
+        <div class="overlay-content">
+          <h2 class="neon-text glow-red glitch">GAME OVER</h2>
+          <p id="game-over-reason" class="game-over-reason">THE INVASION SUCCEEDED</p>
+          
+          <div class="final-stats">
+            <div class="stat-box">
+              <span class="stat-label">FINAL SCORE</span>
+              <span id="final-score" class="stat-value">00000</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">WAVE REACHED</span>
+              <span id="final-wave" class="stat-value">01</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-label">ALL-TIME BEST</span>
+              <span id="final-high-score" class="stat-value">00000</span>
+            </div>
+          </div>
+
+          <div id="new-record-banner" class="new-record hidden blink glow-yellow">
+            ★ NEW HIGH SCORE RECORD! ★
+          </div>
+
+          <button id="restart-btn" class="arcade-btn arcade-btn-primary">
+            PLAY AGAIN
+          </button>
+          <p class="press-space-hint blink">PRESS SPACE TO RESTART</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Controls footer info -->
+    <footer class="arcade-footer">
+      <div class="footer-control-info">
+        <span>Controls: <strong>[← / →]</strong> or <strong>[A / D]</strong> Move</span>
+        <span>•</span>
+        <span><strong>[SPACE]</strong> Shoot</span>
+        <span>•</span>
+        <span><strong>[P]</strong> Pause</span>
+        <span>•</span>
+        <span><strong>[M]</strong> Audio</span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/game.js"></script>
+</body>
+</html>

@@ -1,0 +1,22 @@
+# Git
+.git
+.gitignore
+
+# Tests and development tools
+tests
+package.json
+package-lock.json
+node_modules
+
+# Documentation & metadata
+README.md
+assets/README.md
+
+# Docker files
+Dockerfile
+.dockerignore
+
+# OS metadata & temporary files
+.DS_Store
+Thumbs.db
+*.log
