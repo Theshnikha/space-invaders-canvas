@@ -16,7 +16,13 @@ assets/README.md
 Dockerfile
 .dockerignore
 
+# Terraform infrastructure files
+terraform
+*.tfstate*
+*.tfplan
+
 # OS metadata & temporary files
 .DS_Store
 Thumbs.db
 *.log
+jenkins-cli.jar

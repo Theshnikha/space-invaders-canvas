@@ -1,0 +1,21 @@
+# Node / JavaScript
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs and runtime artifacts
+*.log
+jenkins-cli.jar
+
+# Terraform local state and secrets
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/terraform.tfvars
+terraform/*.tfplan
+
+# OS generated files
+.DS_Store
+Thumbs.db

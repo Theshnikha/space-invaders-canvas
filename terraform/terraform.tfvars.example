@@ -1,0 +1,36 @@
+# ==============================================================================
+# Terraform Variables - Example Values
+# ==============================================================================
+# Instructions:
+# 1. Copy this file to `terraform.tfvars`:
+#    cp terraform.tfvars.example terraform.tfvars
+# 2. Modify variable values below to match your AWS environment.
+# 3. NEVER commit your actual `terraform.tfvars` file if it contains private data.
+# ==============================================================================
+
+# AWS Region to deploy into (e.g. us-east-1, us-west-2, ap-south-1)
+aws_region = "us-east-1"
+
+# Project naming prefix
+project_name = "space-invaders"
+
+# Environment identifier
+environment = "dev"
+
+# Network CIDRs
+vpc_cidr           = "10.0.0.0/16"
+public_subnet_cidr = "10.0.1.0/24"
+availability_zone  = "us-east-1a"
+
+# EC2 Instance Type (t2.micro / t3.micro are AWS Free Tier eligible)
+instance_type = "t2.micro"
+
+# Optional: Specific Amazon Linux AMI ID (leave empty "" to auto-fetch latest Amazon Linux 2023)
+ami_id = ""
+
+# Optional: Name of your existing EC2 Key Pair created in AWS Console (e.g., "my-space-invaders-key")
+key_name = ""
+
+# IP address range allowed to connect via SSH (Port 22)
+# Replace with your public IP for maximum security, e.g., ["203.0.113.50/32"]
+ssh_allowed_cidr = ["0.0.0.0/0"]
