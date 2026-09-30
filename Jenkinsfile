@@ -8,6 +8,9 @@ pipeline {
 
     environment {
         PROJECT_NAME = 'space-invaders-canvas'
+        IMAGE_NAME = 'space-invaders'
+        IMAGE_TAG = '1.0'
+        PATH = "C:\\Users\\user\\AppData\\Local\\Programs\\DockerDesktop\\resources\\bin;${env.PATH}"
     }
 
     stages {
@@ -17,12 +20,12 @@ pipeline {
             }
         }
 
-        stage('Environment & Tool Verification') {
+        stage('Environment Check') {
             steps {
                 bat '''
                     @echo off
                     echo ===================================================
-                    echo [CI] Verifying Build Environment Tools
+                    echo [CI] Verifying Build Environment Tools and Docker
                     echo ===================================================
                     echo Node Version:
                     node --version
@@ -32,6 +35,10 @@ pipeline {
                     git --version
                     echo Java Version:
                     java -version
+                    echo Docker Version:
+                    docker --version
+                    echo Docker Engine Info:
+                    docker info --format "{{.ServerVersion}}"
                     exit /b 0
                 '''
             }
@@ -71,12 +78,12 @@ pipeline {
             }
         }
 
-        stage('Build & Syntax Validation') {
+        stage('Syntax Validation') {
             steps {
                 bat '''
                     @echo off
                     echo ===================================================
-                    echo [CI] Validating Source Files and Syntax
+                    echo [CI] Validating JavaScript Syntax
                     echo ===================================================
                     node --check js/game.js
                     if errorlevel 1 exit /b 1
@@ -88,12 +95,12 @@ pipeline {
             }
         }
 
-        stage('Docker Validation') {
+        stage('Docker Image Build') {
             steps {
-                bat '''
+                bat """
                     @echo off
                     echo ===================================================
-                    echo [CI] Validating Docker Configuration
+                    echo [CI] Building Docker Image (${IMAGE_NAME}:${IMAGE_TAG})
                     echo ===================================================
                     if not exist Dockerfile (
                         echo ERROR: Dockerfile not found!
@@ -103,18 +110,29 @@ pipeline {
                         echo ERROR: nginx.conf not found!
                         exit /b 1
                     )
-                    echo Dockerfile and nginx.conf verified.
-                    
-                    where docker >nul 2>nul
+                    docker build -t ${IMAGE_NAME}:${IMAGE_TAG} -t ${IMAGE_NAME}:%BUILD_NUMBER% .
                     if errorlevel 1 (
-                        echo [INFO] Docker CLI is not installed in this environment. Skipping container build.
-                    ) else (
-                        echo Docker CLI found. Building container image...
-                        docker build -t space-invaders-game:%BUILD_NUMBER% .
-                        if errorlevel 1 exit /b 1
+                        echo ERROR: Docker build failed!
+                        exit /b 1
                     )
+                    echo Docker build succeeded.
                     exit /b 0
-                '''
+                """
+            }
+        }
+
+        stage('Docker Image Verification') {
+            steps {
+                bat """
+                    @echo off
+                    echo ===================================================
+                    echo [CI] Verifying Built Docker Image
+                    echo ===================================================
+                    docker images ${IMAGE_NAME}:${IMAGE_TAG}
+                    if errorlevel 1 exit /b 1
+                    echo Docker Image ${IMAGE_NAME}:${IMAGE_TAG} is verified and ready.
+                    exit /b 0
+                """
             }
         }
     }
@@ -126,7 +144,7 @@ pipeline {
             echo '==================================================='
         }
         success {
-            echo 'SUCCESS: All Space Invaders CI validation checks passed!'
+            echo 'SUCCESS: All Space Invaders CI and Docker Build checks passed!'
         }
         failure {
             echo 'FAILURE: Space Invaders CI pipeline encountered errors.'
