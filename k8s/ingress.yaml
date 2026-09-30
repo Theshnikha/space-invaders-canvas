@@ -1,0 +1,36 @@
+---
+# ==============================================================================
+# Kubernetes Ingress for Space Invaders Application (Optional)
+# ==============================================================================
+# Routes external HTTP traffic to the Space Invaders service.
+# Requires an Ingress Controller (e.g., nginx-ingress) installed on the cluster.
+#
+# For local minikube: minikube addons enable ingress
+# For AWS EKS: install aws-load-balancer-controller or nginx-ingress-controller
+# ==============================================================================
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: space-invaders-ingress
+  namespace: space-invaders
+  labels:
+    app: space-invaders
+    component: ingress
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "30"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "30"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: space-invaders.local   # Change to your domain or EC2 DNS
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: space-invaders-service
+                port:
+                  number: 80

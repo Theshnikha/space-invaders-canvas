@@ -1,0 +1,26 @@
+---
+# ==============================================================================
+# Kubernetes Service for Space Invaders Application
+# ==============================================================================
+# Exposes the Space Invaders Deployment as a network service.
+# NodePort type makes it accessible on each cluster node's IP.
+# Change to LoadBalancer if deploying on AWS EKS or cloud Kubernetes.
+# ==============================================================================
+apiVersion: v1
+kind: Service
+metadata:
+  name: space-invaders-service
+  namespace: space-invaders
+  labels:
+    app: space-invaders
+    component: service
+spec:
+  type: NodePort
+  selector:
+    app: space-invaders
+  ports:
+    - name: http
+      protocol: TCP
+      port: 80          # Service port (internal cluster)
+      targetPort: 80    # Container port
+      nodePort: 30080   # External port on each Node (range: 30000-32767)

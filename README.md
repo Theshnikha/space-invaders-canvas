@@ -1,205 +1,319 @@
-# Space Invaders Canvas Game
+# Space Invaders Canvas Game — Production DevOps Pipeline
 
-A classic retro arcade **Space Invaders** web application built using **pure HTML5 Canvas, CSS3, and vanilla JavaScript**. It requires zero external frameworks, zero build steps, and zero external dependencies.
-
----
-
-## 🕹️ Project Overview
-
-The **Space Invaders Canvas Game** replicates the authentic 1978 arcade experience in modern desktop web browsers. Players command a laser cannon spaceship defending Earth from descending waves of alien invaders, dodging falling bombs, taking shelter behind destructible bunkers, and shooting down high-value mystery flying saucers.
-
-All game graphics and 8-bit sound effects are generated procedurally in code via Canvas bitmap arrays and the browser Web Audio API—enabling instant loading with 100% offline capability.
+A retro arcade **Space Invaders** game built with HTML5 Canvas, Vanilla JavaScript, and Nginx — packaged as a Docker container and deployed through a complete production-grade DevOps pipeline.
 
 ---
 
-## 🎮 Game Controls
-
-| Action | Primary Key | Secondary Key | Alternative |
-| :--- | :--- | :--- | :--- |
-| **Move Left** | <kbd>←</kbd> (Left Arrow) | <kbd>A</kbd> | - |
-| **Move Right** | <kbd>→</kbd> (Right Arrow) | <kbd>D</kbd> | - |
-| **Fire Laser** | <kbd>SPACEBAR</kbd> | - | Button click on menus |
-| **Pause / Resume** | <kbd>P</kbd> | - | "Resume Game" button |
-| **Toggle Sound** | <kbd>M</kbd> | - | "Sound: ON/OFF" button |
-| **Start / Restart**| <kbd>SPACEBAR</kbd> | - | "Insert Coin & Play" button |
-
----
-
-## ✨ Features
-
-1. **Retro Arcade Visuals & CRT Effects**:
-   - Vintage arcade cabinet bezel with glowing neon accents.
-   - CRT scanlines and radial vignette curvature simulation.
-   - Google Font *Press Start 2P* pixel typography.
-   - Parallax twinkling starfield background.
-2. **Authentic Alien Invader Mechanics**:
-   - 5 rows of 11 aliens (55 total invaders per wave) across 3 distinct species:
-     - **Commander Squid** (Top row) — 30 points
-     - **Crab Invader** (Middle 2 rows) — 20 points
-     - **Octopus Trooper** (Bottom 2 rows) — 10 points
-   - 2-frame walking animations synchronised with horizontal marching steps.
-   - Wall bounce and step-down behavior when hitting boundaries.
-   - Progressive march acceleration: aliens speed up dramatically as their ranks are depleted.
-3. **Mystery Flying Saucer (UFO)**:
-   - Periodically cruises across the top of the screen accompanied by a retro siren.
-   - Awards bonus mystery points (50, 100, 150, 200, or 300 pts) when destroyed.
-4. **Destructible Defense Bunkers (Shields)**:
-   - 4 green defensive barricades guarding the player.
-   - Realistic sub-pixel erosion/crater damage from both player laser shots and alien bombs.
-5. **Alien Bomb Drops & Projectile Interception**:
-   - Aliens fire erratic bombs downwards towards the player ship.
-   - Player lasers can intercept and destroy alien bombs mid-air!
-6. **Player Lives & Respawn Protection**:
-   - 3 player lives with visual icon indicators in the HUD.
-   - Respawn temporary invulnerability with classic sprite blinking.
-7. **Invasion Baseline Failure State**:
-   - If the alien fleet reaches Earth's defense baseline, the game triggers an instant Game Over regardless of remaining lives.
-8. **Multi-Wave Progression & Difficulty Scaling**:
-   - Clearing all aliens triggers a wave clear victory banner and advances to the next level.
-   - Successive waves increase base alien march speed, reduce drop intervals, and increase bomb drop rates.
-9. **Score Tracking & LocalStorage High Score**:
-   - Current Score, All-Time High Score, Wave counter, and Lives dynamically updated.
-   - High scores persist in browser `localStorage`.
-10. **Native 8-Bit Web Audio Synthesizer**:
-    - Synthesizes laser shots, noise-based alien explosions, player destruction, cycling 4-note march cadence, and UFO warbles in real-time.
-    - Zero external `.mp3` or `.wav` files required.
-    - One-click mute/unmute control.
-11. **Responsive Desktop Display**:
-    - Automatic crisp pixel-art scaling (`image-rendering: pixelated`) centered on desktop screens.
-
----
-
-## 📁 Project Structure
+## 🎮 Live Architecture
 
 ```
-space-invaders-canvas/
-├── index.html        # Main HTML entry point, cabinet bezel, HUD, & modal overlays
-├── css/
-│   └── style.css     # Retro arcade styling, CRT scanlines, neon glows, responsive layout
-├── js/
-│   └── game.js       # Modular game engine (state machine, physics, entities, audio, loop)
-├── tests/
-│   └── game.test.js  # Automated unit test suite (32 unit tests, zero external dependencies)
-├── assets/
-│   └── README.md     # Architectural guide on procedural sprites and Web Audio synthesis
-├── Dockerfile        # Production lightweight Nginx Alpine container image (~40MB)
-├── .dockerignore     # Exclusion list for minimal and secure container builds
-├── nginx.conf        # Production Nginx configuration with gzip, security headers, & /healthz
-├── package.json      # Test runner script configuration
-└── README.md         # Documentation and local setup instructions
+GitHub (Source Control)
+   ↓
+Jenkins CI/CD (10-Stage Pipeline)
+   ↓
+Node.js Tests (32 Automated Unit Tests)
+   ↓
+Docker Build (Nginx Alpine ~73 MB)
+   ↓
+DockerHub (Image Registry)
+   ↓
+Terraform (AWS VPC + EC2 Infrastructure)
+   ↓
+Ansible (Host Configuration + Deployment)
+   ↓
+Kubernetes (Container Orchestration)
+   ↓
+Space Invaders — Live & Accessible
 ```
 
 ---
 
-## 🐳 Docker Deployment
+## 🛠️ Technology Stack
 
-The application is containerized using an optimized, production-grade **`nginx:1.27-alpine`** image (~40MB total footprint) with built-in gzip compression, security headers, and health monitoring.
+| Layer | Technology |
+| :--- | :--- |
+| **Application** | HTML5 Canvas, CSS3, Vanilla JavaScript |
+| **Web Server** | Nginx 1.27 Alpine |
+| **Containerization** | Docker 29.8.1 |
+| **Image Registry** | DockerHub |
+| **CI/CD** | Jenkins 2.568.3 (Declarative Pipeline) |
+| **Testing** | Node.js Native Test Runner (32 tests) |
+| **Infrastructure** | Terraform 1.16.2 + AWS |
+| **Configuration** | Ansible |
+| **Orchestration** | Kubernetes |
+| **Version Control** | GitHub |
+| **OS** | Amazon Linux 2023 (EC2) |
 
-### 1. Build the Docker Image
+---
+
+## 🚀 Quick Start — Local Development
+
 ```bash
-docker build -t space-invaders-game .
+# Clone the repository
+git clone https://github.com/Theshnikha/space-invaders-canvas.git
+cd space-invaders-canvas
+
+# Run the unit tests (32 tests, no external dependencies)
+npm install
+npm test
+
+# Build and run with Docker
+docker build -t space-invaders:1.0 .
+docker run -d --name space-invaders -p 8080:80 space-invaders:1.0
+
+# Open the game
+start http://localhost:8080
 ```
 
-### 2. Run the Container
+---
+
+## 🧪 Testing
+
+### Unit Tests (32 tests)
 ```bash
-docker run -d -p 8080:80 --name space-invaders space-invaders-game
+npm test
 ```
 
-The game will be accessible in your browser at: **`http://localhost:8080`**
+Tests cover:
+- Player movement and boundary clamping (6)
+- Bullet creation, cooldown, projectile mechanics (5)
+- Alien fleet formation and march acceleration (5)
+- AABB collision detection and bunker erosion (4)
+- Score calculation per alien species and UFO bonus (4)
+- Player lives, damage states, invulnerability frames (3)
+- Game Over triggers and invasion detection (3)
+- Level and wave progression (2)
 
-### 3. Check Container Health Status
+---
+
+## 🐳 Docker
+
+### Build Image
 ```bash
-# Check container status (includes healthy/unhealthy flag):
-docker ps
-
-# Verify health endpoint:
-curl http://localhost:8080/healthz
-# Expected output: healthy
+docker build -t space-invaders:1.0 .
 ```
 
-### 4. Stop and Remove the Container
+### Run Container
+```bash
+docker run -d --name space-invaders -p 8080:80 space-invaders:1.0
+```
+
+### Verify
+- Game: http://localhost:8080
+- Health: http://localhost:8080/healthz (returns `healthy`)
+
+### Stop and Remove
 ```bash
 docker stop space-invaders
 docker rm space-invaders
 ```
 
-### Architecture Highlights:
-* **Lightweight & Fast**: Built on Alpine Linux with minimal attack surface (~40MB).
-* **Zero Compilation Overhead**: As a vanilla JS app, single-stage deployment serves static files directly through Nginx without heavy node runtimes or dev servers.
-* **Production Nginx**: Includes HTTP gzip compression, static asset caching (7 days), and security headers (`X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`).
-* **Health Check**: Configured with Docker `HEALTHCHECK` pinging `/healthz` every 30s.
+---
+
+## 🐋 DockerHub
+
+The Jenkins pipeline automatically pushes the image to DockerHub after a successful build.
+
+### Pull the Latest Image
+```bash
+docker pull theshnikha/space-invaders:latest
+```
+
+### Jenkins DockerHub Credential Setup (Required Once)
+1. Go to **Jenkins → Manage Jenkins → Credentials → Global**
+2. Click **Add Credentials**
+3. Kind: **Username with password**
+4. Username: your DockerHub username
+5. Password: your DockerHub Access Token *(not your password)*
+6. ID: **`dockerhub-credentials`** (must match exactly)
+
+> [!CAUTION]
+> Never put DockerHub passwords or tokens in the `Jenkinsfile`, `.env`, or any Git-tracked file.
 
 ---
 
-## 🧪 Automated Testing
+## 🔧 Jenkins CI/CD Pipeline
 
-The project includes an automated test suite powered by the native Node.js Test Runner (`node:test`) and assertion library (`node:assert/strict`). **Zero external testing libraries or npm packages are required.**
+### 10-Stage Pipeline
 
-### Run Tests:
+| # | Stage | Description |
+| :- | :--- | :--- |
+| 1 | **Checkout** | Clones latest code from GitHub `main` branch |
+| 2 | **Environment Check** | Verifies Node, NPM, Git, Java, Docker versions |
+| 3 | **Install Dependencies** | Runs `npm ci` or `npm install` |
+| 4 | **Run Automated Tests** | Executes all 32 unit tests |
+| 5 | **Syntax Validation** | `node --check` on all JS files |
+| 6 | **Docker Image Build** | Builds `theshnikha/space-invaders:BUILD_NUMBER` |
+| 7 | **Docker Image Verification** | Confirms image exists in local Docker |
+| 8 | **DockerHub Push** | Pushes `:BUILD_NUMBER` and `:latest` tags |
+| 9 | **Kubernetes Manifest Validation** | Validates K8s YAML manifests |
+| 10 | **Container Health Check** | Spins up container, hits `/healthz`, cleans up |
 
-```bash
-# Direct Node test runner (fastest, works everywhere with Node 18+):
-node --test tests/game.test.js
-
-# Or using npm:
-npm test
-# (On Windows PowerShell if scripts are restricted: npm.cmd test)
-```
-
-### Covered Test Areas (32 Tests):
-* **Player Movement**: Initial centering, left/right responsiveness, screen boundary clamping (x=15px and right border), conflict handling.
-* **Bullet Creation & Projectiles**: Player upward velocity, authentic arcade rate-limit (max 2 active bullets), shooting cooldown, alien bomb downward zigzag physics, out-of-bounds detection.
-* **Enemy Creation & Formation**: 55 aliens in 5 rows × 11 columns, species point mapping (Squids 30pts, Crabs 20pts, Octopuses 10pts), initial direction, bottom-row bomb drops, progressive march acceleration.
-* **Collision Detection**: AABB bounding-box calculation, bullet hitting alien, bullet eroding bunker blocks, mid-air bullet/bomb interception.
-* **Score Increment**: Point awards for Squids, Crabs, Octopuses, and Mystery Saucer UFO (50–300pts).
-* **Player Lives & Damage States**: 3 initial lives, bomb damage deduction, hit state, post-respawn invulnerability protection.
-* **Game-Over Conditions**: Zero-lives defeat state, defense baseline invasion detection, high score updating and persistence.
-* **Level Progression**: Wave clearance, level incrementing, fresh 55-alien fleet respawning, wave-over-wave march acceleration.
+### Jenkins URL
+http://localhost:8081
 
 ---
 
-## 🚀 How to Run Locally
+## 🏗️ Terraform — AWS Infrastructure
 
-Because the game uses only native web technologies with zero dependencies or server components, you can run it using any of the methods below:
+### Prerequisites
+- Terraform v1.16.2+ installed
+- AWS CLI v2 installed and configured
+- AWS IAM credentials with EC2, VPC permissions
 
-### Option 1: Direct File Opening
-Double-click `index.html` in your file explorer, or open it in your browser:
+### Resources Provisioned
+- VPC (`10.0.0.0/16`)
+- Public Subnet (`10.0.1.0/24`)
+- Internet Gateway
+- Route Table + Association
+- Security Group (Ports: 22, 80, 8080)
+- EC2 Instance (`t2.micro` — Free Tier eligible, Amazon Linux 2023, Docker pre-installed)
+
+### Setup
 ```bash
-# In Windows PowerShell:
-Start-Process "index.html"
+cd terraform
+
+# Copy and configure variables
+copy terraform.tfvars.example terraform.tfvars
+# Edit terraform.tfvars with your values (no credentials!)
+
+# Configure AWS credentials securely (NOT in project files)
+aws configure
+
+# Initialize and validate
+terraform init
+terraform fmt
+terraform validate
+
+# Preview the plan (READ-ONLY — no resources created)
+terraform plan
+
+# Apply infrastructure (only after reviewing the plan)
+# terraform apply
+
+# Clean up all resources when finished
+# terraform destroy
 ```
-*(Note: Modern browsers support all features including Web Audio API once you click "Start Game" or press Space).*
 
-### Option 2: Python Local HTTP Server
-From inside the `space-invaders-canvas` folder:
+> [!IMPORTANT]
+> Never put AWS Access Keys inside any `.tf` file. Use `aws configure` or environment variables.
 
+---
+
+## 🔧 Ansible — Host Configuration & Deployment
+
+### Prerequisites
+- Ansible installed: `pip install ansible`
+- EC2 instance running (from `terraform apply`)
+- EC2 SSH key pair `.pem` file available locally
+
+### Configure Inventory
+1. Get EC2 public IP: `terraform -chdir=terraform output ec2_public_ip`
+2. Edit `ansible/inventory/hosts.ini`:
+   ```ini
+   ec2_host ansible_host=<EC2_PUBLIC_IP>
+   ansible_ssh_private_key_file=/path/to/your-key.pem
+   ```
+
+### Run Playbooks
 ```bash
-# Python 3
-python -m http.server 8000
-```
-Then navigate to: **`http://localhost:8000`**
+cd ansible
 
-### Option 3: Node.js (npx serve or http-server)
-```bash
-# Using npx
-npx serve .
+# Step 1: Configure EC2 with Docker
+ansible-playbook -i inventory/hosts.ini playbooks/01-setup-host.yml
+
+# Step 2: Deploy the application
+ansible-playbook -i inventory/hosts.ini playbooks/02-deploy-app.yml
+
+# Step 3: Verify deployment
+ansible-playbook -i inventory/hosts.ini playbooks/03-verify-deployment.yml
 ```
 
 ---
 
-## 🌐 Browser Requirements
+## ☸️ Kubernetes — Container Orchestration
 
-The game requires modern browser standards support:
+### Manifests in `k8s/`
 
-* **HTML5 Canvas 2D Context** (`<canvas>`)
-* **Web Audio API** (`window.AudioContext` or `webkitAudioContext`)
-* **ECMAScript 6+** (ES2015+ Classes, Arrow functions, Modules)
-* **CSS3 Flexbox, Grid & Backdrop Filter**
-* **LocalStorage API**
+| File | Resource |
+| :--- | :--- |
+| `namespace.yaml` | `space-invaders` Namespace |
+| `configmap.yaml` | Non-sensitive app configuration |
+| `deployment.yaml` | 2 replicas, rolling update, liveness/readiness probes |
+| `service.yaml` | NodePort on `30080` |
+| `ingress.yaml` | HTTP routing (requires Ingress Controller) |
 
-### Supported Browsers:
-* Google Chrome (v66+)
-* Mozilla Firefox (v60+)
-* Microsoft Edge (v79+)
-* Apple Safari (v14.1+)
-* Opera (v53+)
+### Before Applying
+1. Replace `YOUR_DOCKERHUB_USERNAME` in `k8s/deployment.yaml` with your DockerHub username.
+2. Ensure the image has been pushed to DockerHub by the Jenkins pipeline.
+
+### Apply Manifests
+```bash
+# Apply all manifests
+kubectl apply -f k8s/namespace.yaml
+kubectl apply -f k8s/configmap.yaml
+kubectl apply -f k8s/deployment.yaml
+kubectl apply -f k8s/service.yaml
+
+# Optional: Ingress (requires nginx-ingress-controller)
+kubectl apply -f k8s/ingress.yaml
+
+# Check deployment status
+kubectl rollout status deployment/space-invaders -n space-invaders
+
+# Get pods
+kubectl get pods -n space-invaders
+
+# Get service
+kubectl get svc -n space-invaders
+```
+
+---
+
+## 🔒 Security
+
+| Practice | Implementation |
+| :--- | :--- |
+| No hardcoded secrets | All credentials via Jenkins Credentials / `aws configure` |
+| Git protection | `.gitignore` prevents committing `terraform.tfvars`, `.pem`, `.env` |
+| Docker protection | `.dockerignore` excludes Terraform, tests, CI files from image |
+| Security Headers | Nginx returns `X-Frame-Options`, `X-XSS-Protection`, `X-Content-Type-Options` |
+| SSH restriction | Security Group SSH CIDR configurable via Terraform variable |
+| Container health | HEALTHCHECK in Dockerfile + K8s liveness/readiness probes |
+| Encrypted EBS | EC2 root volume encrypted by default (`encrypted = true`) |
+
+---
+
+## 🧹 Cleanup
+
+### Stop Local Docker Container
+```bash
+docker stop space-invaders
+docker rm space-invaders
+```
+
+### Destroy AWS Infrastructure (After Testing)
+```bash
+cd terraform
+terraform destroy
+```
+Type `yes` when prompted. All 7 AWS resources will be cleanly removed.
+
+### Remove Kubernetes Resources
+```bash
+kubectl delete namespace space-invaders
+```
+
+---
+
+## 🔍 Troubleshooting
+
+| Problem | Solution |
+| :--- | :--- |
+| Jenkins `pipeline` DSL not found | Restart Jenkins to reload Declarative Pipeline plugins |
+| Docker build fails | Verify Docker Desktop is running |
+| `docker push` 401 Unauthorized | Add `dockerhub-credentials` in Jenkins Credentials |
+| `terraform plan` no credentials | Run `aws configure` in your terminal |
+| Ansible SSH timeout | Check EC2 security group allows port 22 from your IP |
+| K8s pod CrashLoopBackOff | Run `kubectl logs <pod> -n space-invaders` |
+| Container unhealthy | Hit `http://localhost:8080/healthz` to check Nginx |

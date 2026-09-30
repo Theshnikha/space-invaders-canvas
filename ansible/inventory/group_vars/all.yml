@@ -1,0 +1,29 @@
+---
+# ==============================================================================
+# Global Ansible Variables for Space Invaders Deployment
+# ==============================================================================
+# These variables apply to all hosts and all playbooks.
+# Do NOT put secrets, passwords, or tokens here.
+# ==============================================================================
+
+# Application identity
+app_name: "space-invaders"
+container_name: "space-invaders-container"
+
+# DockerHub image configuration
+# Replace YOUR_DOCKERHUB_USERNAME with your actual DockerHub username
+# Example: "theshnikha/space-invaders"
+docker_image: "YOUR_DOCKERHUB_USERNAME/space-invaders"
+image_tag: "1.0"
+
+# Container networking
+app_port: 8080
+nginx_port: 80
+
+# Health check settings
+health_check_url: "http://localhost:{{ app_port }}/healthz"
+health_check_timeout: 30
+
+# Application metadata
+project_name: "Space Invaders Canvas Game"
+environment: "dev"

@@ -1,0 +1,63 @@
+---
+# ==============================================================================
+# Playbook 03: Verify Space Invaders Deployment
+# ==============================================================================
+# Verifies that the application is running correctly after deployment.
+#
+# Usage:
+#   ansible-playbook -i inventory/hosts.ini playbooks/03-verify-deployment.yml
+# ==============================================================================
+
+- name: Verify Space Invaders Deployment
+  hosts: space_invaders
+  become: no
+  gather_facts: no
+
+  tasks:
+    - name: Check container is running
+      ansible.builtin.command: >
+        docker ps --filter "name={{ container_name }}" --filter "status=running" --format "{{.Names}}"
+      register: running_containers
+      changed_when: false
+      tags: [verify]
+
+    - name: Fail if container is not running
+      ansible.builtin.fail:
+        msg: "Container '{{ container_name }}' is NOT running. Deployment may have failed."
+      when: container_name not in running_containers.stdout
+      tags: [verify]
+
+    - name: Test application HTTP endpoint
+      ansible.builtin.uri:
+        url: "http://localhost:{{ app_port }}"
+        method: GET
+        status_code: 200
+        timeout: 10
+      register: app_response
+      tags: [verify, health]
+
+    - name: Test health check endpoint
+      ansible.builtin.uri:
+        url: "{{ health_check_url }}"
+        method: GET
+        status_code: 200
+        timeout: 10
+      register: health_response
+      tags: [verify, health]
+
+    - name: Print health check response
+      ansible.builtin.debug:
+        msg: "Health check response: {{ health_response.content | default('healthy') }}"
+      tags: [verify, health]
+
+    - name: Print verification summary
+      ansible.builtin.debug:
+        msg:
+          - "======================================="
+          - "DEPLOYMENT VERIFICATION PASSED"
+          - "======================================="
+          - "Container: {{ container_name }} is RUNNING"
+          - "HTTP 200: http://localhost:{{ app_port }}"
+          - "Healthz: {{ health_check_url }} OK"
+          - "Application is live and healthy!"
+      tags: [verify]

@@ -1,0 +1,86 @@
+---
+# ==============================================================================
+# Playbook 02: Deploy Space Invaders Application
+# ==============================================================================
+# Pulls the Docker image from DockerHub and runs the Space Invaders container.
+# DockerHub credentials must be configured as environment variables or
+# passed securely (never hardcoded in this file).
+#
+# Usage:
+#   ansible-playbook -i inventory/hosts.ini playbooks/02-deploy-app.yml
+#   ansible-playbook -i inventory/hosts.ini playbooks/02-deploy-app.yml \
+#     -e "image_tag=2.0"
+# ==============================================================================
+
+- name: Deploy Space Invaders Application
+  hosts: space_invaders
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Pull Docker image from DockerHub
+      ansible.builtin.command: >
+        docker pull {{ docker_image }}:{{ image_tag }}
+      register: docker_pull_output
+      changed_when: "'Status: Downloaded newer image' in docker_pull_output.stdout or
+                     'Pulled' in docker_pull_output.stdout"
+      tags: [deploy, pull]
+
+    - name: Print pull result
+      ansible.builtin.debug:
+        msg: "{{ docker_pull_output.stdout_lines }}"
+      tags: [deploy, pull]
+
+    - name: Stop existing container if running
+      ansible.builtin.command: docker stop {{ container_name }}
+      register: stop_result
+      failed_when: stop_result.rc != 0 and 'No such container' not in stop_result.stderr
+      changed_when: stop_result.rc == 0
+      tags: [deploy]
+
+    - name: Remove existing container if present
+      ansible.builtin.command: docker rm {{ container_name }}
+      register: rm_result
+      failed_when: rm_result.rc != 0 and 'No such container' not in rm_result.stderr
+      changed_when: rm_result.rc == 0
+      tags: [deploy]
+
+    - name: Run new Space Invaders container
+      ansible.builtin.command: >
+        docker run -d
+        --name {{ container_name }}
+        -p {{ app_port }}:{{ nginx_port }}
+        --restart always
+        {{ docker_image }}:{{ image_tag }}
+      register: docker_run_output
+      tags: [deploy, run]
+
+    - name: Print container ID
+      ansible.builtin.debug:
+        msg: "Container started with ID: {{ docker_run_output.stdout[:12] }}"
+      tags: [deploy, run]
+
+    - name: Wait for application to be reachable on port {{ app_port }}
+      ansible.builtin.wait_for:
+        host: localhost
+        port: "{{ app_port }}"
+        timeout: "{{ health_check_timeout }}"
+        state: started
+      tags: [deploy, verify]
+
+    - name: Verify container is running
+      ansible.builtin.command: docker ps --filter "name={{ container_name }}" --format "{{.Names}} - {{.Status}}"
+      register: ps_output
+      changed_when: false
+      tags: [deploy, verify]
+
+    - name: Print deployment summary
+      ansible.builtin.debug:
+        msg:
+          - "==================================="
+          - "Space Invaders Deployment COMPLETE"
+          - "==================================="
+          - "Image: {{ docker_image }}:{{ image_tag }}"
+          - "Container: {{ ps_output.stdout }}"
+          - "Access: http://<EC2-PUBLIC-IP>:{{ app_port }}"
+      tags: [verify]

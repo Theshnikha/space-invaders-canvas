@@ -1,0 +1,20 @@
+---
+# ==============================================================================
+# Kubernetes ConfigMap for Space Invaders Application
+# ==============================================================================
+# Non-sensitive application configuration.
+# Do NOT put secrets, passwords, or tokens in this file.
+# ==============================================================================
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: space-invaders-config
+  namespace: space-invaders
+  labels:
+    app: space-invaders
+    component: config
+data:
+  APP_NAME: "space-invaders"
+  APP_PORT: "80"
+  ENVIRONMENT: "dev"
+  HEALTH_CHECK_PATH: "/healthz"

@@ -1,0 +1,12 @@
+---
+# ==============================================================================
+# Kubernetes Namespace for Space Invaders Application
+# ==============================================================================
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: space-invaders
+  labels:
+    app: space-invaders
+    environment: dev
+    managed-by: kubernetes

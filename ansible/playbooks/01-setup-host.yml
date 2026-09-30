@@ -1,0 +1,79 @@
+---
+# ==============================================================================
+# Playbook 01: Configure EC2 Host for Space Invaders
+# ==============================================================================
+# Installs and configures all required system dependencies on the EC2 host.
+# All tasks are idempotent - safe to run multiple times.
+#
+# Usage:
+#   ansible-playbook -i inventory/hosts.ini playbooks/01-setup-host.yml
+# ==============================================================================
+
+- name: Configure Space Invaders EC2 Host
+  hosts: space_invaders
+  become: yes
+  gather_facts: yes
+
+  tasks:
+    - name: Update all system packages
+      ansible.builtin.dnf:
+        name: "*"
+        state: latest
+        update_cache: yes
+      tags: [packages, update]
+
+    - name: Install required packages
+      ansible.builtin.dnf:
+        name:
+          - docker
+          - git
+          - python3-pip
+          - python3
+          - curl
+          - wget
+        state: present
+      tags: [packages]
+
+    - name: Start and enable Docker service
+      ansible.builtin.systemd:
+        name: docker
+        state: started
+        enabled: yes
+        daemon_reload: yes
+      tags: [docker]
+
+    - name: Add ec2-user to docker group
+      ansible.builtin.user:
+        name: ec2-user
+        groups: docker
+        append: yes
+      tags: [docker]
+
+    - name: Verify Docker is running
+      ansible.builtin.command: docker --version
+      register: docker_version_output
+      changed_when: false
+      tags: [docker, verify]
+
+    - name: Print Docker version
+      ansible.builtin.debug:
+        msg: "Docker installed: {{ docker_version_output.stdout }}"
+      tags: [docker, verify]
+
+    - name: Verify Docker daemon is accessible
+      ansible.builtin.command: docker info
+      become_user: ec2-user
+      register: docker_info_output
+      changed_when: false
+      failed_when: docker_info_output.rc != 0
+      tags: [docker, verify]
+
+    - name: Print host setup summary
+      ansible.builtin.debug:
+        msg:
+          - "==================================="
+          - "EC2 Host Configuration COMPLETE"
+          - "==================================="
+          - "Docker: {{ docker_version_output.stdout }}"
+          - "Host is ready for application deployment."
+      tags: [verify]
