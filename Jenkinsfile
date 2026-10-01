@@ -198,49 +198,33 @@ pipeline {
 
         // ======================================================================
         // STAGE 8: DockerHub Push
-        // Requires Jenkins credential ID: dockerhub-credentials
-        // Configure at: Jenkins → Manage Jenkins → Credentials → Global
+        // Docker Desktop handles authentication transparently via its daemon.
+        // docker push succeeds without explicit docker login on this host.
         // ======================================================================
         stage('DockerHub Push') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub_credentials',
-                    usernameVariable: 'DOCKER_USER',
-                    passwordVariable: 'DOCKER_PASS'
-                )]) {
-                    powershell '''
-                        Write-Host "==================================================="
-                        Write-Host "[CI] Pushing Image to DockerHub"
-                        Write-Host "Image: ${env:FULL_IMAGE_NAME}:${env:IMAGE_TAG}"
-                        Write-Host "Username: '$env:DOCKER_USER'"
-                        Write-Host "Token Length: $($env:DOCKER_PASS.Trim().Length) chars"
-                        Write-Host "Starts with 'dckr_pat_': $($env:DOCKER_PASS.Trim().StartsWith('dckr_pat_'))"
-                        Write-Host "==================================================="
+                powershell '''
+                    Write-Host "==================================================="
+                    Write-Host "[CI] Pushing Image to DockerHub"
+                    Write-Host "Image: ${env:FULL_IMAGE_NAME}:${env:IMAGE_TAG}"
+                    Write-Host "==================================================="
 
-                        $pass = $env:DOCKER_PASS.Trim()
-                        $pass | docker login --username $env:DOCKER_USER --password-stdin
+                    docker push ${env:FULL_IMAGE_NAME}:${env:IMAGE_TAG}
+                    if ($LASTEXITCODE -ne 0) {
+                        Write-Host "[FAIL] Docker push failed for tag: ${env:IMAGE_TAG}"
+                        exit $LASTEXITCODE
+                    }
+                    Write-Host "[PASS] Pushed ${env:FULL_IMAGE_NAME}:${env:IMAGE_TAG}"
 
-                        if ($LASTEXITCODE -ne 0) {
-                            Write-Host "[FAIL] DockerHub login failed!"
-                            exit $LASTEXITCODE
-                        }
+                    docker push ${env:FULL_IMAGE_NAME}:latest
+                    if ($LASTEXITCODE -ne 0) {
+                        Write-Host "[FAIL] Docker push failed for tag: latest"
+                        exit $LASTEXITCODE
+                    }
+                    Write-Host "[PASS] Pushed ${env:FULL_IMAGE_NAME}:latest"
 
-                        docker push ${env:FULL_IMAGE_NAME}:${env:IMAGE_TAG}
-                        if ($LASTEXITCODE -ne 0) {
-                            Write-Host "[FAIL] Docker push failed for tag: $env:IMAGE_TAG"
-                            exit $LASTEXITCODE
-                        }
-
-                        docker push ${env:FULL_IMAGE_NAME}:latest
-                        if ($LASTEXITCODE -ne 0) {
-                            Write-Host "[FAIL] Docker push failed for tag: latest"
-                            exit $LASTEXITCODE
-                        }
-
-                        docker logout
-                        Write-Host "[PASS] DockerHub image push completed successfully."
-                    '''
-                }
+                    Write-Host "[PASS] DockerHub image push completed successfully."
+                '''
             }
         }
 
