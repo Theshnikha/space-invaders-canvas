@@ -204,35 +204,39 @@ pipeline {
         stage('DockerHub Push') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: env.DOCKERHUB_CRED_ID,
+                    credentialsId: 'dockerhub_credentials',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
-                    bat """
-                        @echo off
-                        echo ===================================================
-                        echo [CI] Pushing Image to DockerHub
-                        echo Image: ${FULL_IMAGE_NAME}:${IMAGE_TAG}
-                        echo ===================================================
-                        powershell -NoProfile -Command "$env:DOCKER_PASS.Trim() | docker login -u $env:DOCKER_USER --password-stdin"
-                        if errorlevel 1 (
-                            echo [FAIL] DockerHub login failed!
-                            exit /b 1
-                        )
-                        docker push ${FULL_IMAGE_NAME}:${IMAGE_TAG}
-                        if errorlevel 1 (
-                            echo [FAIL] Docker push failed for tag: ${IMAGE_TAG}
-                            exit /b 1
-                        )
-                        docker push ${FULL_IMAGE_NAME}:${IMAGE_LATEST_TAG}
-                        if errorlevel 1 (
-                            echo [FAIL] Docker push failed for tag: latest
-                            exit /b 1
-                        )
+                    powershell '''
+                        Write-Host "==================================================="
+                        Write-Host "[CI] Pushing Image to DockerHub"
+                        Write-Host "Image: ${env:FULL_IMAGE_NAME}:${env:IMAGE_TAG}"
+                        Write-Host "==================================================="
+
+                        $pass = $env:DOCKER_PASS.Trim()
+                        $pass | docker login --username $env:DOCKER_USER --password-stdin
+
+                        if ($LASTEXITCODE -ne 0) {
+                            Write-Host "[FAIL] DockerHub login failed!"
+                            exit $LASTEXITCODE
+                        }
+
+                        docker push ${env:FULL_IMAGE_NAME}:${env:IMAGE_TAG}
+                        if ($LASTEXITCODE -ne 0) {
+                            Write-Host "[FAIL] Docker push failed for tag: $env:IMAGE_TAG"
+                            exit $LASTEXITCODE
+                        }
+
+                        docker push ${env:FULL_IMAGE_NAME}:latest
+                        if ($LASTEXITCODE -ne 0) {
+                            Write-Host "[FAIL] Docker push failed for tag: latest"
+                            exit $LASTEXITCODE
+                        }
+
                         docker logout
-                        echo [PASS] Image pushed to DockerHub: ${FULL_IMAGE_NAME}:${IMAGE_TAG}
-                        exit /b 0
-                    """
+                        Write-Host "[PASS] DockerHub image push completed successfully."
+                    '''
                 }
             }
         }
