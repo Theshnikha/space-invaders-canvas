@@ -23,6 +23,12 @@ pipeline {
         buildDiscarder(logRotator(numToKeepStr: '10'))
     }
 
+    parameters {
+        string(name: 'DOCKERHUB_USERNAME', defaultValue: 'theshnikha', description: 'DockerHub Username or Organization')
+        string(name: 'DOCKERHUB_REPOSITORY', defaultValue: 'space-invaders', description: 'DockerHub Repository Name')
+        string(name: 'CUSTOM_TAG', defaultValue: '', description: 'Optional Custom Image Tag (defaults to build number if empty)')
+    }
+
     environment {
         // -----------------------------------------------------------------------
         // Project Identity
@@ -30,18 +36,13 @@ pipeline {
         PROJECT_NAME    = 'space-invaders-canvas'
 
         // -----------------------------------------------------------------------
-        // DockerHub Configuration
-        // Replace DOCKERHUB_USERNAME with your DockerHub username.
-        // Add DockerHub credentials in Jenkins:
-        //   Jenkins → Manage Jenkins → Credentials → Global
-        //   Kind: Username with password
-        //   ID:   dockerhub-credentials
+        // DockerHub Configuration (Configurable via parameters or environment)
         // -----------------------------------------------------------------------
-        DOCKERHUB_USERNAME    = 'theshnikha'
-        DOCKERHUB_REPOSITORY  = 'space-invaders'
-        IMAGE_TAG             = "${env.BUILD_NUMBER}"
+        DOCKERHUB_USERNAME    = "${params.DOCKERHUB_USERNAME ?: 'theshnikha'}"
+        DOCKERHUB_REPOSITORY  = "${params.DOCKERHUB_REPOSITORY ?: 'space-invaders'}"
+        IMAGE_TAG             = "${params.CUSTOM_TAG ?: env.BUILD_NUMBER}"
         IMAGE_LATEST_TAG      = 'latest'
-        FULL_IMAGE_NAME       = "${DOCKERHUB_USERNAME}/${DOCKERHUB_REPOSITORY}"
+        FULL_IMAGE_NAME       = "${env.DOCKERHUB_USERNAME}/${env.DOCKERHUB_REPOSITORY}"
 
         // -----------------------------------------------------------------------
         // Docker Desktop PATH (Windows)
