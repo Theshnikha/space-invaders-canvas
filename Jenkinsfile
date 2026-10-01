@@ -212,6 +212,9 @@ pipeline {
                         Write-Host "==================================================="
                         Write-Host "[CI] Pushing Image to DockerHub"
                         Write-Host "Image: ${env:FULL_IMAGE_NAME}:${env:IMAGE_TAG}"
+                        Write-Host "Username: '$env:DOCKER_USER'"
+                        Write-Host "Token Length: $($env:DOCKER_PASS.Trim().Length) chars"
+                        Write-Host "Starts with 'dckr_pat_': $($env:DOCKER_PASS.Trim().StartsWith('dckr_pat_'))"
                         Write-Host "==================================================="
 
                         $pass = $env:DOCKER_PASS.Trim()
