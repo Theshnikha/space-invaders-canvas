@@ -36,8 +36,7 @@ pipeline {
         PROJECT_NAME    = 'space-invaders-canvas'
 
         // -----------------------------------------------------------------------
-        // DockerHub Configuration (Configurable via parameters or environment)
-        // -----------------------------------------------------------------------
+        DOCKERHUB_CRED_ID     = 'dockerhub_credentials'
         DOCKERHUB_USERNAME    = "${params.DOCKERHUB_USERNAME ?: 'theshnikha'}"
         DOCKERHUB_REPOSITORY  = "${params.DOCKERHUB_REPOSITORY ?: 'space-invaders'}"
         IMAGE_TAG             = "${params.CUSTOM_TAG ?: env.BUILD_NUMBER}"
@@ -205,7 +204,7 @@ pipeline {
         stage('DockerHub Push') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub-credentials',
+                    credentialsId: env.DOCKERHUB_CRED_ID,
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
