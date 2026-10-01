@@ -214,7 +214,7 @@ pipeline {
                         echo [CI] Pushing Image to DockerHub
                         echo Image: ${FULL_IMAGE_NAME}:${IMAGE_TAG}
                         echo ===================================================
-                        echo %DOCKER_PASS% | docker login -u %DOCKER_USER% --password-stdin
+                        powershell -NoProfile -Command "$env:DOCKER_PASS.Trim() | docker login -u $env:DOCKER_USER --password-stdin"
                         if errorlevel 1 (
                             echo [FAIL] DockerHub login failed!
                             exit /b 1
